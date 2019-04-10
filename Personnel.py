@@ -1,5 +1,6 @@
 from datetime import datetime
 import loadfromsheets
+from datetime import timedelta
 
 personnel = None
 id_to_person_index = None
@@ -13,7 +14,7 @@ class Person(object):
         self.paygrade = paygrade
         self.milpaclink = link
         self.firstname = firstname
-        self.lastname=lastname
+        self.lastname = lastname
         self.AOR = aor
         self.status = status
         self.checkstatus = status2
@@ -34,6 +35,49 @@ class Person(object):
         self.gc_gk3 = datetime.strptime(gk3, '%d-%b-%y')
 
 
+def promo_finder():
+    pfc_list = []
+    spc_list = []
+    cpl_list = []
+    global personnel
+
+    week_start, week_end = get_week_range(datetime.today())
+    print(week_start, week_end)
+    for person in personnel:
+        if week_start <= person.PFC_Promo_date <= week_end and (person.status == "Active" or
+                                                                person.status == "Military ELOA"):
+            print("PFC Promotion due: " + str(person.paygrade) + " " + str(person.firstname) + ", "
+                  + str(person.lastname) + " dated: " + str(person.PFC_Promo_date.strftime("%d %b %Y")).upper())
+            pfc_list.append(person)
+        elif week_start <= person.SPC_Promo_date <= week_end and (person.status == "Active" or
+                                                                  person.status == "Military ELOA"):
+            print("SPC Promotion due: " + str(person.paygrade) + " " + str(person.firstname) + ", "
+                  + str(person.lastname) + " dated: " + str(person.SPC_Promo_date.strftime("%d %b %Y")).upper())
+            spc_list.append(person)
+        elif week_start <= person.CPL_Promo_date <= week_end and (person.status == "Active" or
+                                                                  person.status == "Military ELOA"):
+            print("CPL Promotion due? " + str(person.paygrade) + " " + str(person.firstname) + ", "
+                  + str(person.lastname) + " dated: " + str(person.CPL_Promo_date.strftime("%d %b %Y")).upper())
+            cpl_list.append(person)
+
+
+def gc_finder():
+    global personnel
+    bk1_list = []
+    bk2_list = []
+    bk3_list = []
+
+    day_start, day_end = get_month_range(datetime.today())
+    print(day_start, day_end)
+    for person in personnel:
+        if day_start <= person.gc_bk1 <= day_end and (person.status == "Active" or
+                                                              person.status == "Military ELOA"):
+
+            print("First Bronze Knot due: " + str(person.paygrade) + " " + str(person.firstname) + ", "
+                  + str(person.lastname) + " dated: " + str(person.gc_bk1.strftime("%d %b %Y")).upper())
+            bk1_list.append(person)
+
+
 def loadfromtracker():
     global personnel
     global id_to_person_index
@@ -46,8 +90,56 @@ def loadfromtracker():
     data = loadfromsheets.loaddata()
     print("Loaded {0} Records".format(len(data)))
     for i in range(0, len(data)):
-        print(data[i])
-        print(data[i][0],data[i][1])
-
         personnel.append(Person(*data[i]))
-        print(personnel[i])
+    # print(personnel[i])
+
+
+def get_week_range(date):
+    """ Find the first/last day of the Cav-week for the given day.
+    Assuming weeks start on Saturday and end on Friday.
+    Returns a tuple of ``(start_date, end_date)``.
+    """
+    # isocalendar calculates the year, week of the year, and day of the week.
+    # dow is Mon = 1, Sat = 6, Sun = 7
+    year, week, dow = date.isocalendar()
+    # Find the first day of the week.
+    if dow == 6:  # Since we want to start with Saturday
+        start_date = date
+    else:
+        # Otherwise, subtract `dow` number days to get the first day
+        start_date = date - timedelta(dow)
+    # Now, add 6 for the last day of the week (i.e., count up to Friday)
+    end_date = start_date + timedelta(6)
+    return start_date, end_date
+
+
+def get_month_range(date):
+    first_day = datetime.today().replace(day=1)
+    print("first day = " + str(first_day))
+    if date.month == 12 and date.year == datetime.today().year:
+        last_day = date.replace(day=31)
+        print("last day = " + str(last_day))
+        return first_day, last_day
+    elif date.year == datetime.today().year:
+        last_day = date.replace(month=date.month+1, day=1) - timedelta(days=1)
+        return first_day, last_day
+
+
+def get_quarter_range(date):
+    """ Find the first/last day of the Cav-week for the given day.
+    Assuming weeks start on Saturday and end on Friday.
+    Returns a tuple of ``(start_date, end_date)``.
+    """
+    quarter = int((date.month - 1) / 3 + 1)
+    month = 3 * quarter
+    remaining = int(month / 12)
+    first_day = datetime(date.year, 3 * quarter - 2, 1)
+    last_day = datetime(date.year + remaining, month % 12 + 1, 1) + timedelta(days=-1)
+    return first_day, last_day
+
+
+if __name__ == '__main__':
+    loadfromtracker()
+    # promo_finder()
+    print("-----\n Good Conduct Medals:\n----\n")
+    gc_finder()
