@@ -10,7 +10,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1OVf8YkHpIwIZaYzJB-uwU7HXjs0GbSZYQyN9UEwQZ2U'
-SAMPLE_RANGE_NAME = 'Active!A4:V'
+SAMPLE_RANGE_NAME = 'Active!A4:X'
 
 
 def loaddata():

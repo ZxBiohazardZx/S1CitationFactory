@@ -8,8 +8,7 @@ id_to_person_index = None
 
 class Person(object):
     def __init__(self, paygrade: str, link: str, firstname: str, lastname: str, aor: str, status: str, status2,
-                 specstatus: str,
-                 bct_date: str, pfcdate: str, spcdate: str, cpldate: str,
+                 specstatus: str, bct_date: str, pfcdate: str, spcdate: str, cpldate: str, ncoabool: bool, sacbool: bool,
                  gc: str, bk1: str, bk2: str, bk3: str, sk1: str, sk2: str, sk3: str, gk1: str, gk2: str, gk3: str):
         self.paygrade = paygrade
         self.milpaclink = link
@@ -23,6 +22,8 @@ class Person(object):
         self.PFC_Promo_date = datetime.strptime(pfcdate, '%d-%b-%y')
         self.SPC_Promo_date = datetime.strptime(spcdate, '%d-%b-%y')
         self.CPL_Promo_date = datetime.strptime(cpldate, '%d-%b-%y')
+        self.NCOA = ncoabool
+        self.SAC = sacbool
         self.gc = datetime.strptime(gc, '%d-%b-%y')
         self.gc_bk1 = datetime.strptime(bk1, '%d-%b-%y')
         self.gc_bk2 = datetime.strptime(bk2, '%d-%b-%y')
@@ -59,20 +60,22 @@ def promo_finder():
     week_start, week_end = get_week_range(datetime.today() + timedelta(days=-3))
     print("weekstart:"+str(week_start)+" week-end:"+str(week_end))
     for person in personnel:
-        if week_start <= person.PFC_Promo_date <= week_end and (person.status == "Active" or
-                                                                person.status == "Military ELOA"):
+        if week_start <= person.PFC_Promo_date <= week_end and \
+                (person.status == "Active" or person.status == "Military ELOA") and person.paygrade != "E-3 PFC":
             print("PFC Promotion due: " + str(person.paygrade) + " " + str(person.firstname) + " "
                   + str(person.lastname) + " dated: " + str(person.PFC_Promo_date.strftime("%d %b %Y")).upper())
             pfc_list.append(person)
-        elif week_start <= person.SPC_Promo_date <= week_end and (person.status == "Active" or
-                                                                  person.status == "Military ELOA"):
+        elif week_start <= person.SPC_Promo_date <= week_end and \
+                (person.status == "Active" or person.status == "Military ELOA") and person.paygrade != "E-4A SPC":
             print("SPC Promotion due: " + str(person.paygrade) + " " + str(person.firstname) + " "
                   + str(person.lastname) + " dated: " + str(person.SPC_Promo_date.strftime("%d %b %Y")).upper())
             spc_list.append(person)
-        elif week_start <= person.CPL_Promo_date <= week_end and (person.status == "Active" or
-                                                                  person.status == "Military ELOA"):
+        elif person.CPL_Promo_date <= week_end and \
+                (person.status == "Active" or person.status == "Military ELOA") \
+                and person.paygrade == "E-4A SPC" and person.NCOA is True and person.SAC is True:
             print("CPL Promotion due? " + str(person.paygrade) + " " + str(person.firstname) + " "
-                  + str(person.lastname) + " dated: " + str(person.CPL_Promo_date.strftime("%d %b %Y")).upper())
+                  + str(person.lastname) + " dated: " + str(person.CPL_Promo_date.strftime("%d %b %Y")).upper()
+                  + "NCOA/SAC:" + str(person.NCOA) + "/" + str(person.SAC))
             cpl_list.append(person)
 
 
@@ -276,12 +279,12 @@ def get_week_range(date):
     # isocalendar calculates the year, week of the year, and day of the week.
     # dow is Mon = 1, Sat = 6, Sun = 7
     year, week, dow = date.isocalendar()
-    # Find the first day of the week.
-    if dow == 6:  # Since we want to start with Saturday
+    # Find the first day of the week:
+    if dow == 6:  # Since we want to start with Saturday, if the input is saturday we are good
         start_date = date
     else:
-        # Otherwise, subtract `dow` number days to get the first day
-        start_date = date - timedelta(dow)
+        # Otherwise, subtract `dow` number days to get the sunday (=7) and add 1 to get the saturday
+        start_date = date - timedelta(dow+1)
     # Now, add 6 for the last day of the week (i.e., count up to Friday)
     end_date = start_date + timedelta(6)
     return start_date.replace(hour=0, minute=0, second=0), end_date.replace(hour=23, minute=59, second=59)
@@ -312,9 +315,10 @@ def get_quarter_range(date):
     last_day = datetime(date.year + remaining, month % 12 + 1, 1) + timedelta(days=-1)
     return first_day, last_day
 
+
 if __name__ == '__main__':
     loadfromtracker()
-    #promo_finder()
+    promo_finder()
     #print("-----\n Good Conduct Medals:\n----\n")
-    gc_finder()
+    #gc_finder()
 
