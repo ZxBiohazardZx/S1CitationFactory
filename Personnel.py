@@ -8,7 +8,8 @@ id_to_person_index = None
 
 class Person(object):
     def __init__(self, paygrade: str, link: str, firstname: str, lastname: str, aor: str, status: str, status2,
-                 specstatus: str, bct_date: str, pfcdate: str, spcdate: str, cpldate: str, ncoabool: bool, sacbool: bool,
+                 specstatus: str, bct_date: str, pfcdate: str, spcdate: str, cpldate: str, ncoabool: bool,
+                 sacbool: bool,
                  gc: str, bk1: str, bk2: str, bk3: str, sk1: str, sk2: str, sk3: str, gk1: str, gk2: str, gk3: str):
         self.paygrade = paygrade
         self.milpaclink = link
@@ -40,10 +41,12 @@ def paygrade2rank(inperson):
     paygrades = ["E-3 PFC", "E-4A SPC", "E-4B CPL", "E-5 SGT", "E-6 SSG", "E-7 SFC", "E-8 1SG", "E-9A SGM", "E-9B CSM",
                  "O-01 2LT", "O-02 1LT", "O-03 CPT", "O-04 MAJ", "O-05 LTC", "O-06 COL", "O-07 BG", "O-08 MG", "O-09 ",
                  "O-10A GEN", "O-10B GOA", "W-1 WO1", "W-2 CW2", "W-3 CW3", "W-4 CW4", "W-5 CW5"]
-    ranks = ["Private First Class", "Specialist", "Corporal", "Sergeant", "Staff Sergeant", "Sergeant First Class",
-             "First Sergeant", "Sergeant Major", "Command Sergeant Major", "Second Lieutenant", "First Lieutenant",
-             "Captain", "Major", "Lieutenant Colonel", "Colonel", "Brigadier General", "Major General", " General2",
-             "General", "General of the Army", "Warrant Officer 1","Chief Warrant Officer 2", "Chief Warrant Officer 3",
+    ranks = ["Private First Class", "Specialist", "Corporal",
+             "Sergeant", "Staff Sergeant", "Sergeant First Class", "First Sergeant", "Sergeant Major",
+             "Command Sergeant Major",
+             "Second Lieutenant", "First Lieutenant", "Captain", "Major", "Lieutenant Colonel", "Colonel",
+             "Brigadier General", "Major General", " General2", "General", "General of the Army",
+             "Warrant Officer 1", "Chief Warrant Officer 2", "Chief Warrant Officer 3",
              "Chief Warrant Officer 4", "Chief Warrant Officer 5"]
     if inperson.paygrade in paygrades:
         inperson.rank = ranks[paygrades.index(inperson.paygrade)]
@@ -72,8 +75,8 @@ def promo_finder():
             spc_list.append(person)
         elif person.CPL_Promo_date <= week_end and \
                 (person.status == "Active" or person.status == "Military ELOA") \
-                and person.paygrade == "E-4A SPC" and person.NCOA is True and person.SAC is True:
-            print("CPL Promotion due? " + str(person.paygrade) + " " + str(person.firstname) + " "
+                and person.paygrade == "E-4A SPC" and (person.NCOA == "TRUE" and person.SAC == "TRUE"):
+            print("CPL Promotion due " + str(person.paygrade) + " " + str(person.firstname) + " "
                   + str(person.lastname) + " dated: " + str(person.CPL_Promo_date.strftime("%d %b %Y")).upper()
                   + "NCOA/SAC:" + str(person.NCOA) + "/" + str(person.SAC))
             cpl_list.append(person)
@@ -144,7 +147,8 @@ def gc_finder():
             elif gc_list[index].AOR != gc_list[index-1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_bk1.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_bk1.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if bk1_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/8/87/GCM1BZ.png[/IMG]\n")
@@ -156,7 +160,8 @@ def gc_finder():
             elif bk1_list[index].AOR != bk1_list[index-1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_bk1.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_bk1.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if bk2_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/6/60/GCM2BZ.png[/IMG]\n")
@@ -168,7 +173,8 @@ def gc_finder():
             elif bk2_list[index].AOR != bk2_list[index-1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_bk2.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_bk2.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if bk3_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/a/ae/GCM3BZ.png[/IMG]\n")
@@ -180,7 +186,8 @@ def gc_finder():
             elif bk3_list[index].AOR != bk3_list[index - 1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                                person.lastname, person.gc_bk3.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_bk3.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if sk1_list:
         print("\n\n[IMG]https://wiki.7cav.us/index.php/File:GCM1S.png[/IMG]\n")
@@ -192,7 +199,8 @@ def gc_finder():
             elif sk1_list[index].AOR != sk1_list[index - 1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_sk1.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_sk1.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if sk2_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/5/57/GCM2S.png[/IMG]\n")
@@ -204,7 +212,8 @@ def gc_finder():
             elif sk2_list[index].AOR != sk2_list[index - 1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_sk2.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_sk2.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if sk3_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/9/97/GCM3S.png[/IMG]\n")
@@ -216,7 +225,8 @@ def gc_finder():
             elif sk3_list[index].AOR != sk3_list[index - 1].AOR:
                     print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_sk3.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_sk3.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if gk1_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/f/fa/GCM1G.png[/IMG]\n")
@@ -228,7 +238,8 @@ def gc_finder():
             elif gk1_list[index].AOR != gk1_list[index - 1].AOR:
                     print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_gk1.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_gk1.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if gk2_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/1/1b/GCM2G.png[/IMG]\n")
@@ -240,7 +251,8 @@ def gc_finder():
             elif gk2_list[index].AOR != gk2_list[index - 1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_gk2.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_gk2.strftime("%d %b %Y").upper()))
 # ---------------------------------------------------------------------------------------------------------------------
     if gk3_list:
         print("\n\n[IMG]https://wiki.7cav.us/images/7/75/GCM3G.png[/IMG]\n")
@@ -252,7 +264,8 @@ def gc_finder():
             elif gk3_list[index].AOR != gk3_list[index - 1].AOR:
                 print(person.AOR)
             print("[URL='{0}']{1} {2} {3}[/URL] {4}".format(person.milpaclink, person.rank, person.firstname,
-                                                            person.lastname, person.gc_gk3.strftime("%d %b %Y").upper()))
+                                                            person.lastname,
+                                                            person.gc_gk3.strftime("%d %b %Y").upper()))
 
 
 def loadfromtracker():
@@ -319,6 +332,6 @@ def get_quarter_range(date):
 if __name__ == '__main__':
     loadfromtracker()
     promo_finder()
-    #print("-----\n Good Conduct Medals:\n----\n")
-    #gc_finder()
+    # print("-----\n Good Conduct Medals:\n----\n")
+    # gc_finder()
 
