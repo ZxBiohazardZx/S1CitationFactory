@@ -293,11 +293,11 @@ def get_week_range(date):
     # dow is Mon = 1, Sat = 6, Sun = 7
     year, week, dow = date.isocalendar()
     # Find the first day of the week:
-    if dow == 6:  # Since we want to start with Saturday, if the input is saturday we are good
+    if dow == 7:  # Since we want to start with Saturday, if the input is saturday we are good
         start_date = date
     else:
         # Otherwise, subtract `dow` number days to get the sunday (=7) and add 1 to get the saturday
-        start_date = date - timedelta(dow+1)
+        start_date = date - timedelta(dow)
     # Now, add 6 for the last day of the week (i.e., count up to Friday)
     end_date = start_date + timedelta(6)
     return start_date.replace(hour=0, minute=0, second=0), end_date.replace(hour=23, minute=59, second=59)
