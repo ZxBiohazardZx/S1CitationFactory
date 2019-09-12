@@ -38,10 +38,10 @@ class Person(object):
 
 
 def paygrade2rank(inperson):
-    paygrades = ["E-3 PFC", "E-4A SPC", "E-4B CPL", "E-5 SGT", "E-6 SSG", "E-7 SFC", "E-8 1SG", "E-9A SGM", "E-9B CSM",
+    paygrades = ["E-2 PVT","E-3 PFC", "E-4A SPC", "E-4B CPL", "E-5 SGT", "E-6 SSG", "E-7 SFC", "E-8 1SG", "E-9A SGM", "E-9B CSM",
                  "O-01 2LT", "O-02 1LT", "O-03 CPT", "O-04 MAJ", "O-05 LTC", "O-06 COL", "O-07 BG", "O-08 MG", "O-09 ",
                  "O-10A GEN", "O-10B GOA", "W-1 WO1", "W-2 CW2", "W-3 CW3", "W-4 CW4", "W-5 CW5"]
-    ranks = ["Private First Class", "Specialist", "Corporal",
+    ranks = ["Private","Private First Class", "Specialist", "Corporal",
              "Sergeant", "Staff Sergeant", "Sergeant First Class", "First Sergeant", "Sergeant Major",
              "Command Sergeant Major",
              "Second Lieutenant", "First Lieutenant", "Captain", "Major", "Lieutenant Colonel", "Colonel",
@@ -53,16 +53,25 @@ def paygrade2rank(inperson):
     else:
         inperson.rank = "Not Found"
 
+# def aor2pretty(inperson):
+   # aors = []
+   # pretty = []
+   # if inperson.aor in aors:
+       # inperson.pretty = pretty[aors.index(inperson.aor)]
+    # else:
+       # inperson.pretty = "Not Found"
+
 
 def promo_finder():
     pfc_list = []
     spc_list = []
     cpl_list = []
     global personnel
-
+    
     week_start, week_end = get_week_range(datetime.today() + timedelta(days=-3))
     print("weekstart:"+str(week_start)+" week-end:"+str(week_end))
     for person in personnel:
+        paygrade2rank(person)
         if week_start <= person.PFC_Promo_date <= week_end and \
                 (person.status == "Active" or person.status == "Military ELOA") and person.paygrade != "E-3 PFC":
             print("PFC Promotion due: " + str(person.paygrade) + " " + str(person.firstname) + " "
@@ -80,6 +89,7 @@ def promo_finder():
                   + str(person.lastname) + " dated: " + str(person.CPL_Promo_date.strftime("%d %b %Y")).upper()
                   + "NCOA/SAC:" + str(person.NCOA) + "/" + str(person.SAC))
             cpl_list.append(person)
+    return pfc_list,spc_list,cpl_list
 
 
 def gc_finder():
@@ -331,7 +341,62 @@ def get_quarter_range(date):
 
 if __name__ == '__main__':
     loadfromtracker()
-    promo_finder()
+    p1=[]
+    p2=[]
+    p3=[]
+    p1,p2,p3=promo_finder()
+    print("PFC{0},SPC{1},CPL{2}".format(len(p1),len(p2),len(p3)))
+    p1.sort(key=lambda x: (x.AOR, x.PFC_Promo_date), reverse=False)
+    p2.sort(key=lambda x: (x.AOR, x.SPC_Promo_date), reverse=False)
+    p3.sort(key=lambda x: (x.AOR, x.CPL_Promo_date), reverse=False)
+    f= open("PROMO.txt","w+")
+    if p1:
+        f.write("[CENTER][B]The following troopers are hereby promoted to the rank of Private First Class (E-3)[/B]\n")
+        f.write("[IMG]https://owncloud.7cav.us/index.php/s/IrCu13aW4JGeYaY/download[/IMG]\n")
+    for person in p1:
+        index = p1.index(person)
+        if p1.__len__() == 1:
+            f.write(person.AOR)
+            f.write("\n")
+        elif p1[index].AOR != p1[index-1].AOR:
+            f.write(person.AOR)
+            f.write("\n")
+        f.write("[URL='{0}']{1} {2} {3}[/URL] {4}\n".format(person.milpaclink, person.rank, person.firstname,
+                                                            person.lastname,
+                                                            person.PFC_Promo_date.strftime("%d %b %Y").upper())) 
+    f.write("\n------\n")                                                    
+    if p2:
+        f.write("[CENTER][B]The following troopers are hereby promoted to the rank of Specialist (E-4)[/B]\n")
+        f.write("[IMG]https://7cav.us/attachments/spc-png.1962/[/IMG]\n")
+    for person in p2:
+        index = p2.index(person)
+        if p2.__len__() == 1:
+            f.write(person.AOR)
+            f.write("\n")
+        elif p2[index].AOR != p2[index-1].AOR:
+            f.write(person.AOR)
+            f.write("\n")
+        f.write("[URL='{0}']{1} {2} {3}[/URL] {4}\n".format(person.milpaclink, person.rank, person.firstname,
+                                                            person.lastname,
+                                                            person.SPC_Promo_date.strftime("%d %b %Y").upper()))
+    f.write("[B]Congratulations![/B][/CENTER]\n")
+    f.write("\n------\n")                                                    
+    if p3:
+        f.write("[CENTER][B]The following troopers are hereby promoted to the rank of Corporal (E-4)[/B]\n")
+        f.write("[IMG]https://7cav.us/attachments/cpl-png.1963/[/IMG]\n")                                                   
+    for person in p3:
+        index = p3.index(person)
+        if p3.__len__() == 1:
+            f.write(person.AOR)
+            f.write("\n")
+        elif p3[index].AOR != p3[index-1].AOR:
+            f.write(person.AOR)
+            f.write("\n")
+        f.write("[URL='{0}']{1} {2} {3}[/URL] {4}\n".format(person.milpaclink, person.rank, person.firstname,
+                                                            person.lastname,
+                                                            person.CPL_Promo_date.strftime("%d %b %Y").upper()))
+    f.write("[B]Congratulations![/B][/CENTER]\n")
+    f.close()
     # print("-----\n Good Conduct Medals:\n----\n")
     # gc_finder()
 
